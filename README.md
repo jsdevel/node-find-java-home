@@ -3,6 +3,19 @@
 Returns the location of JAVA_HOME as an absolute path on windows, mac, and 
 linux.  It runs asynchronously.
 
+##Algorithm
+1. Use JAVA_HOME if it's set.
+2. Find javac in PATH
+
+If javac is found in PATH:
+3. Handle symlink of javac if found in path.
+4. Check for java_home next to javac (mac has this)
+
+If java_home is found(mac):
+5. Use the result of java_home
+
+6. User the parent directory.
+
 ##Example
 ````javascript
 require('./')(function(err, home){

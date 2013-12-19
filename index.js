@@ -30,9 +30,11 @@ module.exports = findJavaHome;
 function findJavaHome(cb){
   var macUtility;
 
-  javaHome = javaHome || process.env.JAVA_HOME;
+  if(process.env.JAVA_HOME){
+    javaHome = process.env.JAVA_HOME;
+  }
 
-  if(javaHome)return javaHome;  
+  if(javaHome)return next(cb, null, javaHome);
 
   findInPath('javac', function(err, proposed){
     if(err)return next(cb, err, null);
@@ -49,7 +51,8 @@ function findJavaHome(cb){
     if(exists(macUtility)){
       exec(macUtility, {cwd:proposed}, function(error, out, err){
         if(error || err)return next(cb, error || ""+err, null);
-        return next(cb, null, ""+out);
+        javaHome = ""+out;
+        next(cb, null, ""+out);
       }) ;
       return;
     }
