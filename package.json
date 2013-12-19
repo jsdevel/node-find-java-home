@@ -1,5 +1,5 @@
 {
-  "name": "node-find-java-home",
+  "name": "find-java-home",
   "version": "0.0.0",
   "description": "Find JAVA_HOME on any system",
   "main": "index.js",
