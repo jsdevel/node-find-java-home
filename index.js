@@ -18,7 +18,7 @@ var path = require('path');
 var child_process = require('child_process');
 
 var dirname = path.dirname;
-var exec = child_process.execFile;
+var exec = child_process.exec;
 var exists = fs.existsSync;
 var readlink = fs.readlinkSync;
 var resolve = path.resolve;
@@ -52,8 +52,23 @@ function findJavaHome(cb){
       exec(macUtility, {cwd:proposed}, function(error, out, err){
         if(error || err)return next(cb, error || ""+err, null);
         javaHome = ""+out;
-        next(cb, null, ""+out);
+        next(cb, null, javaHome);
       }) ;
+      return;
+    }
+
+    //check for windows last
+    if(process.platform.indexOf("win") === 0){
+      exec(
+        'reg',
+        [
+          'query',
+          '"hkey_local_machine\software\javasoft\java dev elopment kit"'
+        ], 
+        function(error, out, err){
+          if(error || err)return next(cb, error || ""+err, null);
+
+        });
       return;
     }
 
