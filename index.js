@@ -36,6 +36,51 @@ function findJavaHome(cb){
 
   if(javaHome)return next(cb, null, javaHome);
 
+  //windows
+  if(process.platform.indexOf("win") === 0){
+    //get the registry value
+    exec(
+      [
+        'reg',
+        'query',
+        '"hkey_local_machine\\software\\javasoft\\java development kit"'
+      ].join(' '), 
+      function(error, out, err){
+        var reg = /\\([0-9]\.[0-9])$/;
+        var key;
+        if(error || err)return next(cb, error || ""+err, null);
+        key = out
+          .replace(/\r/g, "")
+          .split("\n").filter(function(key){
+            return reg.test(key);
+          })
+          .sort(function(a,b){
+            var aVer = parseFloat(reg.exec(a)[1]);
+            var bVer = parseFloat(reg.exec(b)[1]);
+
+            return bVer - aVer;
+          })[0];
+        exec(
+          [
+            'reg',
+            'query',
+            '"'+key+'"',
+            '/v javahome'
+          ].join(' '),
+          function(error, out, err){
+            if(error || err)return next(cb, error || ""+err, null);
+            javaHome = out
+              .replace(/[\r\n]/gm, '')
+              .replace(/.+\s([a-z]:\\.+)$/im, "$1")
+              .replace(/\s+$/, '');
+            next(cb, null, javaHome);
+          }
+        );
+      }
+    );
+    return;
+  }
+
   findInPath('javac', function(err, proposed){
     if(err)return next(cb, err, null);
 
@@ -54,21 +99,6 @@ function findJavaHome(cb){
         javaHome = ""+out;
         next(cb, null, javaHome);
       }) ;
-      return;
-    }
-
-    //check for windows last
-    if(process.platform.indexOf("win") === 0){
-      exec(
-        'reg',
-        [
-          'query',
-          '"hkey_local_machine\software\javasoft\java dev elopment kit"'
-        ], 
-        function(error, out, err){
-          if(error || err)return next(cb, error || ""+err, null);
-
-        });
       return;
     }
 
