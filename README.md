@@ -4,17 +4,12 @@ Returns the location of JAVA_HOME as an absolute path on windows, mac, and
 linux.  It runs asynchronously.
 
 ##Algorithm
-1. Use JAVA_HOME if it's set.
-2. Find javac in PATH
-
-If javac is found in PATH:
-3. Handle symlink of javac if found in path.
-4. Check for java_home next to javac (mac has this)
-
-If java_home is found(mac):
-5. Use the result of java_home
-
-6. User the parent directory.
+1. This module will first attempt to check for JAVA_HOME.  If that's set it
+simply returns that value.  
+2. On windows the registry is queried.
+3. If neither of the previous methods worked, then the PATH is scanned for javac
+4. On mac, the parent directory of javac is checked for a java_home binary.  If that binary exists then it is executed and the result is used
+5. The grandparent directory of javac is used.  This is similar to `$(dirname $(dirname $(readlink `which javac`)))`
 
 ##Example
 ````javascript
