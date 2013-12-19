@@ -24,8 +24,8 @@ require('./')(function(err, home){
 });
 ````
 
+##License
 ````
-Finds the location of java home on any system.
 Copyright 2013 Joseph Spencer.
 
 Licensed under the Apache License, Version 2.0 (the "License");
