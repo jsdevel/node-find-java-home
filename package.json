@@ -1,10 +1,10 @@
 {
   "name": "find-java-home",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Find JAVA_HOME on any system",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test.js"
   },
   "repository": {
     "type": "git",
