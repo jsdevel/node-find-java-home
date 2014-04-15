@@ -12,14 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+'use strict';
+
 var findInPath = require('find-in-path');
 var fs = require('fs');
 var path = require('path');
-var child_process = require('child_process');
-
 var dirname = path.dirname;
-var exec = child_process.exec;
+var exec = require('child_process').exec;
 var exists = fs.existsSync;
+var stat = fs.statSync;
 var readlink = fs.readlinkSync;
 var resolve = path.resolve;
 var lstat = fs.lstatSync;
@@ -30,14 +32,14 @@ module.exports = findJavaHome;
 function findJavaHome(cb){
   var macUtility;
 
-  if(process.env.JAVA_HOME){
+  if(process.env.JAVA_HOME && dirIsJavaHome(process.env.JAVA_HOME)){
     javaHome = process.env.JAVA_HOME;
   }
 
   if(javaHome)return next(cb, null, javaHome);
 
   //windows
-  if(process.platform.indexOf("win") === 0){
+  if(process.platform.indexOf('win') === 0){
     //get the registry value
     exec(
       [
@@ -48,10 +50,10 @@ function findJavaHome(cb){
       function(error, out, err){
         var reg = /\\([0-9]\.[0-9])$/;
         var key;
-        if(error || err)return next(cb, error || ""+err, null);
+        if(error || err)return next(cb, error || ''+err, null);
         key = out
-          .replace(/\r/g, "")
-          .split("\n").filter(function(key){
+          .replace(/\r/g, '')
+          .split('\n').filter(function(key){
             return reg.test(key);
           })
           .sort(function(a,b){
@@ -68,10 +70,10 @@ function findJavaHome(cb){
             '/v javahome'
           ].join(' '),
           function(error, out, err){
-            if(error || err)return next(cb, error || ""+err, null);
+            if(error || err)return next(cb, error || ''+err, null);
             javaHome = out
               .replace(/[\r\n]/gm, '')
-              .replace(/.+\s([a-z]:\\.+)$/im, "$1")
+              .replace(/.+\s([a-z]:\\.+)$/im, '$1')
               .replace(/\s+$/, '');
             next(cb, null, javaHome);
           }
@@ -95,8 +97,8 @@ function findJavaHome(cb){
     macUtility = resolve(proposed, 'java_home');
     if(exists(macUtility)){
       exec(macUtility, {cwd:proposed}, function(error, out, err){
-        if(error || err)return next(cb, error || ""+err, null);
-        javaHome = ""+out;
+        if(error || err)return next(cb, error || ''+err, null);
+        javaHome = ''+out;
         next(cb, null, javaHome);
       }) ;
       return;
@@ -112,12 +114,18 @@ function findJavaHome(cb){
 // iterate through symbolic links until
 // file is found
 function findLinkedFile(file){
-    if(!lstat(file).isSymbolicLink()) return file;
-    return findLinkedFile(readlink(file));
+  if(!lstat(file).isSymbolicLink()) return file;
+  return findLinkedFile(readlink(file));
 }
 
 function next(){
   var args = [].slice.apply(arguments);
   var cb = args.shift();
   process.nextTick(function(){cb.apply(null, args);});
+}
+
+function dirIsJavaHome(dir){
+  return exists(''+dir)
+    && stat(dir).isDirectory()
+    && exists(path.resolve(dir, 'bin', 'javac'));
 }
