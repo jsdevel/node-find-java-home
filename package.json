@@ -11,7 +11,8 @@
     "url": "https://github.com/jsdevel/node-find-java-home.git"
   },
   "dependencies": {
-    "find-in-path": "*"
+    "find-in-path": "*",
+    "underscore": "^1.6.0"
   },
   "keywords": [
     "JAVA_HOME",

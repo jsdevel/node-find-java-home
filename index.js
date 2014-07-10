@@ -15,6 +15,7 @@
 
 'use strict';
 
+var _ = require('underscore');
 var findInPath = require('find-in-path');
 var fs = require('fs');
 var path = require('path');
@@ -40,46 +41,67 @@ function findJavaHome(cb){
 
   //windows
   if(process.platform.indexOf('win') === 0){
-    //get the registry value
-    exec(
+    //java_home can be in many places
+    var possibleKeyPaths =
       [
-        'reg',
-        'query',
-        '"hkey_local_machine\\software\\javasoft\\java development kit"'
-      ].join(' '),
-      function(error, out, err){
-        var reg = /\\([0-9]\.[0-9])$/;
-        var key;
-        if(error || err)return next(cb, error || ''+err, null);
-        key = out
-          .replace(/\r/g, '')
-          .split('\n').filter(function(key){
-            return reg.test(key);
-          })
-          .sort(function(a,b){
-            var aVer = parseFloat(reg.exec(a)[1]);
-            var bVer = parseFloat(reg.exec(b)[1]);
-
-            return bVer - aVer;
-          })[0];
-        exec(
-          [
-            'reg',
-            'query',
-            '"'+key+'"',
-            '/v javahome'
-          ].join(' '),
-          function(error, out, err){
-            if(error || err)return next(cb, error || ''+err, null);
-            javaHome = out
-              .replace(/[\r\n]/gm, '')
-              .replace(/.+\s([a-z]:\\.+)$/im, '$1')
-              .replace(/\s+$/, '');
-            next(cb, null, javaHome);
+        '"hklm\\software\\javasoft\\java development kit"',
+        '"hklm\\software\\javasoft\\java runtime environment"',
+        '"hklm\\software\\wow6432node\\javasoft\\java development kit"',
+        '"hklm\\software\\wow6432node\\javasoft\\java runtime environment"'
+      ];
+    var errors = [];
+    var failed = _.after(possibleKeyPaths.length, function() {
+      return next(cb, errors.join('\r\n'), null)
+    });
+    var findInRegistry = function(keyPath) {
+      //get the registry value
+      exec(
+        [
+          'reg',
+          'query',
+          keyPath
+        ].join(' '),
+        function(error, out, err){
+          var reg = /\\([0-9]\.[0-9])$/;
+          var key;
+          if(error || err){
+            errors.push(error || ''+err);
+            return failed();
           }
-        );
-      }
-    );
+          key = out
+            .replace(/\r/g, '')
+            .split('\n').filter(function(key){
+              return reg.test(key);
+            })
+            .sort(function(a,b){
+              var aVer = parseFloat(reg.exec(a)[1]);
+              var bVer = parseFloat(reg.exec(b)[1]);
+
+              return bVer - aVer;
+            })[0];
+          exec(
+            [
+              'reg',
+              'query',
+              '"'+key+'"',
+              '/v javahome'
+            ].join(' '),
+            function(error, out, err){
+              if(error || err){
+                errors.push(error || ''+err);
+                return failed();
+              }
+              javaHome = out
+                .replace(/[\r\n]/gm, '')
+                .replace(/.+\s([a-z]:\\.+)$/im, '$1')
+                .replace(/\s+$/, '');
+              next(cb, null, javaHome);
+            }
+          );
+        }
+      );
+    };
+    possibleKeyPaths.map(findInRegistry);
     return;
   }
 
