@@ -15,7 +15,6 @@
 
 'use strict';
 
-var _ = require('underscore');
 var findInPath = require('find-in-path');
 var fs = require('fs');
 var path = require('path');
@@ -50,7 +49,7 @@ function findJavaHome(cb){
         '"hklm\\software\\wow6432node\\javasoft\\java runtime environment"'
       ];
     var errors = [];
-    var failed = _.after(possibleKeyPaths.length, function() {
+    var failed = after(possibleKeyPaths.length, function() {
       return next(cb, errors.join('\r\n'), null)
     });
     var findInRegistry = function(keyPath) {
@@ -151,3 +150,10 @@ function dirIsJavaHome(dir){
     && stat(dir).isDirectory()
     && exists(path.resolve(dir, 'bin', 'javac'));
 }
+
+function after(count, cb){
+  return function(){
+    if(count <= 1)return process.nextTick(cb);
+    --count;
+  }
+};
