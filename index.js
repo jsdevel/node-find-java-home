@@ -15,7 +15,7 @@
 
 'use strict';
 
-var findInPath = require('find-in-path');
+var which = require('which');
 var fs = require('fs');
 var path = require('path');
 var dirname = path.dirname;
@@ -119,7 +119,7 @@ function findJavaHome(options, cb){
     return;
   }
 
-  findInPath('javac', function(err, proposed){
+  which('javac', function(err, proposed){
     if(err)return next(cb, err, null);
 
     //resolve symlinks
