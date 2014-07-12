@@ -8,3 +8,4 @@ notifications:
     on_success: "never"
 before_script:
   - "java -version"
+  - "which javac"
