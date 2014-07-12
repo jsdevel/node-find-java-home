@@ -29,18 +29,19 @@ var javaHome;
 
 module.exports = findJavaHome;
 
-function findJavaHome(){
-  var args = [].slice.apply(arguments);
-  var options = {allowJre: false};
-  if(args.length === 2) {
-    var cb = args[1];
-    for(var key in args[0]){
-      if(args[0].hasOwnProperty(key)) options[key] = args[0][key];
-    }
-  } else {
-    var cb = args[0];
+function findJavaHome(options, cb){
+  if(typeof options === 'function'){
+    cb = options;
+    options = null;
   }
+  options = options || {
+    allowJre: false
+  };
   var macUtility;
+  var possibleKeyPaths;
+  var errors = [];
+  var failed;
+  var findInRegistry;
 
   if(process.env.JAVA_HOME && dirIsJavaHome(process.env.JAVA_HOME)){
     javaHome = process.env.JAVA_HOME;
@@ -52,25 +53,21 @@ function findJavaHome(){
   if(process.platform.indexOf('win') === 0){
     //java_home can be in many places
     //JDK paths
-    var possibleKeyPaths =
-      [
-        '"hklm\\software\\javasoft\\java development kit"',
-        '"hklm\\software\\wow6432node\\javasoft\\java development kit"'
-      ];
+    possibleKeyPaths = [
+      '"hklm\\software\\javasoft\\java development kit"',
+      '"hklm\\software\\wow6432node\\javasoft\\java development kit"'
+    ];
     //JRE paths
     if(options.allowJre){
-      possibleKeyPaths.concat(
-        [
-          '"hklm\\software\\javasoft\\java runtime environment"',
-          '"hklm\\software\\wow6432node\\javasoft\\java runtime environment"'
-        ]
-      );
+      possibleKeyPaths = possibleKeyPaths.concat([
+        '"hklm\\software\\javasoft\\java runtime environment"',
+        '"hklm\\software\\wow6432node\\javasoft\\java runtime environment"'
+      ]);
     }
-    var errors = [];
-    var failed = after(possibleKeyPaths.length, function() {
+    failed = after(possibleKeyPaths.length, function() {
       return next(cb, errors.join('\r\n'), null)
     });
-    var findInRegistry = function(keyPath) {
+    findInRegistry = function(keyPath) {
       //get the registry value
       exec(
         [
