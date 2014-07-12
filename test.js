@@ -50,4 +50,12 @@ describe('find-java-home', function(){
       });
     });
   });
+
+  describe('when given options', function() {
+    it('should still java home', function(done) {
+      sut({allowJre: true}, function(err, home) {
+        done(err);
+      });
+    });
+  });
 });
