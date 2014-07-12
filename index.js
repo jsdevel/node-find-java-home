@@ -39,9 +39,6 @@ function findJavaHome(options, cb){
   };
   var macUtility;
   var possibleKeyPaths;
-  var errors = [];
-  var failed;
-  var findInRegistry;
 
   if(process.env.JAVA_HOME && dirIsJavaHome(process.env.JAVA_HOME)){
     javaHome = process.env.JAVA_HOME;
@@ -64,59 +61,8 @@ function findJavaHome(options, cb){
         '"hklm\\software\\wow6432node\\javasoft\\java runtime environment"'
       ]);
     }
-    failed = after(possibleKeyPaths.length, function() {
-      return next(cb, errors.join('\r\n'), null)
-    });
-    findInRegistry = function(keyPath) {
-      //get the registry value
-      exec(
-        [
-          'reg',
-          'query',
-          keyPath
-        ].join(' '),
-        function(error, out, err){
-          var reg = /\\([0-9]\.[0-9])$/;
-          var key;
-          if(error || err){
-            errors.push(error || ''+err);
-            return failed();
-          }
-          key = out
-            .replace(/\r/g, '')
-            .split('\n').filter(function(key){
-              return reg.test(key);
-            })
-            .sort(function(a,b){
-              var aVer = parseFloat(reg.exec(a)[1]);
-              var bVer = parseFloat(reg.exec(b)[1]);
 
-              return bVer - aVer;
-            })[0];
-          exec(
-            [
-              'reg',
-              'query',
-              '"'+key+'"',
-              '/v javahome'
-            ].join(' '),
-            function(error, out, err){
-              if(error || err){
-                errors.push(error || ''+err);
-                return failed();
-              }
-              javaHome = out
-                .replace(/[\r\n]/gm, '')
-                .replace(/.+\s([a-z]:\\.+)$/im, '$1')
-                .replace(/\s+$/, '');
-              next(cb, null, javaHome);
-            }
-          );
-        }
-      );
-    };
-    possibleKeyPaths.map(findInRegistry);
-    return;
+    return findInRegistry(possibleKeyPaths, [], cb);
   }
 
   which('javac', function(err, proposed){
@@ -147,6 +93,59 @@ function findJavaHome(options, cb){
   });
 }
 
+function findInRegistry(paths, errors, cb){
+  if(!paths.length) cb(errors.join('\r\n'));
+
+  var keyPath = paths.splice(0, 1)[0];
+
+  //get the registry value
+  exec(
+    [
+      'reg',
+      'query',
+      keyPath
+    ].join(' '),
+    function(error, out, err){
+      var reg = /\\([0-9]\.[0-9])$/;
+      var key;
+      if(error || err){
+        errors.push(error || ''+err);
+        return findInRegistry(paths, errors, cb);
+      }
+      key = out
+        .replace(/\r/g, '')
+        .split('\n').filter(function(key){
+          return reg.test(key);
+        })
+        .sort(function(a,b){
+          var aVer = parseFloat(reg.exec(a)[1]);
+          var bVer = parseFloat(reg.exec(b)[1]);
+
+          return bVer - aVer;
+        })[0];
+      exec(
+        [
+          'reg',
+          'query',
+          '"'+key+'"',
+          '/v javahome'
+        ].join(' '),
+        function(error, out, err){
+          if(error || err){
+            errors.push(error || ''+err);
+            return findInRegistry(paths, errors, cb);
+          }
+          javaHome = out
+            .replace(/[\r\n]/gm, '')
+            .replace(/.+\s([a-z]:\\.+)$/im, '$1')
+            .replace(/\s+$/, '');
+          cb(null, javaHome);
+        }
+      );
+    }
+  );
+}
+
 // iterate through symbolic links until
 // file is found
 function findLinkedFile(file){
@@ -154,10 +153,8 @@ function findLinkedFile(file){
   return findLinkedFile(readlink(file));
 }
 
-function next(){
-  var args = [].slice.apply(arguments);
-  var cb = args.shift();
-  process.nextTick(function(){cb.apply(null, args);});
+function next(cb, err, home){
+  process.nextTick(function(){cb(err, home);});
 }
 
 function dirIsJavaHome(dir){
