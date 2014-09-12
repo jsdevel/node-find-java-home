@@ -29,6 +29,9 @@ var javaHome;
 
 module.exports = findJavaHome;
 
+var isWindows = process.platform.indexOf('win') === 0;
+var JAVAC_FILENAME = 'javac' + (isWindows?'.exe':'');
+
 function findJavaHome(options, cb){
   if(typeof options === 'function'){
     cb = options;
@@ -65,7 +68,7 @@ function findJavaHome(options, cb){
     return findInRegistry(possibleKeyPaths, [], cb);
   }
 
-  which('javac', function(err, proposed){
+  which(JAVAC_FILENAME, function(err, proposed){
     if(err)return next(cb, err, null);
 
     //resolve symlinks
@@ -160,14 +163,12 @@ function next(cb, err, home){
 function dirIsJavaHome(dir){
   return exists(''+dir)
     && stat(dir).isDirectory()
-    && (exists(path.resolve(dir, 'bin', 'javac'))
-      || exists(path.resolve(dir, 'bin', 'javac.exe'))
-      );
+    && exists(path.resolve(dir, 'bin', JAVAC_FILENAME));
 }
 
 function after(count, cb){
   return function(){
     if(count <= 1)return process.nextTick(cb);
     --count;
-  }
-};
+  };
+}
