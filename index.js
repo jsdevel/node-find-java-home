@@ -160,7 +160,9 @@ function next(cb, err, home){
 function dirIsJavaHome(dir){
   return exists(''+dir)
     && stat(dir).isDirectory()
-    && exists(path.resolve(dir, 'bin', 'javac'));
+    && (exists(path.resolve(dir, 'bin', 'javac'))
+      || exists(path.resolve(dir, 'bin', 'javac.exe'))
+      );
 }
 
 function after(count, cb){
