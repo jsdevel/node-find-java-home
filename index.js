@@ -25,6 +25,7 @@ var stat = fs.statSync;
 var readlink = fs.readlinkSync;
 var resolve = path.resolve;
 var lstat = fs.lstatSync;
+var WinReg = require("winreg");
 var javaHome;
 
 module.exports = findJavaHome;
@@ -53,19 +54,18 @@ function findJavaHome(options, cb){
   if(process.platform.indexOf('win') === 0){
     //java_home can be in many places
     //JDK paths
-    possibleKeyPaths = [
-      '"hklm\\software\\javasoft\\java development kit"',
-      '"hklm\\software\\wow6432node\\javasoft\\java development kit"'
+    possibleKeyPaths = [        
+      "SOFTWARE\\JavaSoft\\Java Development Kit"
     ];
     //JRE paths
     if(options.allowJre){
       possibleKeyPaths = possibleKeyPaths.concat([
-        '"hklm\\software\\javasoft\\java runtime environment"',
-        '"hklm\\software\\wow6432node\\javasoft\\java runtime environment"'
+      "SOFTWARE\\JavaSoft\\Java Runtime Environment",
       ]);
     }
 
-    return findInRegistry(possibleKeyPaths, [], cb);
+    javaHome= findInRegistry(possibleKeyPaths);
+    if(javaHome)return next(cb, null, javaHome);
   }
 
   which(JAVAC_FILENAME, function(err, proposed){
@@ -96,57 +96,30 @@ function findJavaHome(options, cb){
   });
 }
 
-function findInRegistry(paths, errors, cb){
-  if(!paths.length) cb(errors.join('\r\n'));
+function findInRegistry(paths){
+  if(!paths.length) return null; 
+  
+  var keysFound =[];
+  var keyPath = paths.forEach(function(element) {
+    var key = new WinReg({ key: keyPath });
+    key.keys(function(err, javaKeys){
+      keysFound.concat(javaKeys);
+    });
+  }, this)
+  
+  if(!keysFound.length) return null;
 
-  var keyPath = paths.splice(0, 1)[0];
+  keysFound = keysFound.sort(function(a,b){
+     var aVer = parseFloat(a.key);
+     var bVer = parseFloat(b.key);
+     return bVer - aVer;
+  });
+  var registryJavaHome;
+  keysFound[0].get('JavaHome',function(err,home){
+   registryJavaHome = home.value; 
+  });
 
-  //get the registry value
-  exec(
-    [
-      'reg',
-      'query',
-      keyPath
-    ].join(' '),
-    function(error, out, err){
-      var reg = /\\([0-9]\.[0-9])$/;
-      var key;
-      if(error || err){
-        errors.push(error || ''+err);
-        return findInRegistry(paths, errors, cb);
-      }
-      key = out
-        .replace(/\r/g, '')
-        .split('\n').filter(function(key){
-          return reg.test(key);
-        })
-        .sort(function(a,b){
-          var aVer = parseFloat(reg.exec(a)[1]);
-          var bVer = parseFloat(reg.exec(b)[1]);
-
-          return bVer - aVer;
-        })[0];
-      exec(
-        [
-          'reg',
-          'query',
-          '"'+key+'"',
-          '/v javahome'
-        ].join(' '),
-        function(error, out, err){
-          if(error || err){
-            errors.push(error || ''+err);
-            return findInRegistry(paths, errors, cb);
-          }
-          javaHome = out
-            .replace(/[\r\n]/gm, '')
-            .replace(/.+\s([a-z]:\\.+)$/im, '$1')
-            .replace(/\s+$/, '');
-          cb(null, javaHome);
-        }
-      );
-    }
-  );
+  return registryJavaHome;
 }
 
 // iterate through symbolic links until
