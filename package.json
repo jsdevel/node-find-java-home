@@ -11,7 +11,8 @@
     "url": "https://github.com/jsdevel/node-find-java-home.git"
   },
   "dependencies": {
-    "which": "~1.0.5"
+    "which": "~1.0.5",
+    "winreg": "~1.2.2"
   },
   "keywords": [
     "JAVA_HOME",
@@ -20,7 +21,7 @@
     "home"
   ],
   "author": "Joseph Spencer",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/jsdevel/node-find-java-home/issues"
   },
