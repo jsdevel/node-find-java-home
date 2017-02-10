@@ -11,6 +11,7 @@
     "url": "https://github.com/jsdevel/node-find-java-home.git"
   },
   "dependencies": {
+    "deasync": "~0.1.9",
     "which": "~1.0.5",
     "winreg": "~1.2.2"
   },

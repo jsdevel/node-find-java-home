@@ -25,7 +25,8 @@ var stat = fs.statSync;
 var readlink = fs.readlinkSync;
 var resolve = path.resolve;
 var lstat = fs.lstatSync;
-var WinReg = require("winreg");
+var deasync = require('deasync');
+var WinReg = require('winreg');
 var javaHome;
 
 module.exports = findJavaHome;
@@ -55,12 +56,12 @@ function findJavaHome(options, cb){
     //java_home can be in many places
     //JDK paths
     possibleKeyPaths = [        
-      "SOFTWARE\\JavaSoft\\Java Development Kit"
+      "\\SOFTWARE\\JavaSoft\\Java Development Kit"
     ];
     //JRE paths
     if(options.allowJre){
       possibleKeyPaths = possibleKeyPaths.concat([
-      "SOFTWARE\\JavaSoft\\Java Runtime Environment",
+      "\\SOFTWARE\\JavaSoft\\Java Runtime Environment",
       ]);
     }
 
@@ -98,26 +99,51 @@ function findJavaHome(options, cb){
 
 function findInRegistry(paths){
   if(!paths.length) return null; 
-  
-  var keysFound =[];
-  var keyPath = paths.forEach(function(element) {
-    var key = new WinReg({ key: keyPath });
-    key.keys(function(err, javaKeys){
-      keysFound.concat(javaKeys);
-    });
-  }, this)
-  
-  if(!keysFound.length) return null;
 
-  keysFound = keysFound.sort(function(a,b){
-     var aVer = parseFloat(a.key);
-     var bVer = parseFloat(b.key);
-     return bVer - aVer;
-  });
-  var registryJavaHome;
-  keysFound[0].get('JavaHome',function(err,home){
-   registryJavaHome = home.value; 
-  });
+  var done = false;
+  var currVer;
+
+  for(var i in paths) {
+    var key = new WinReg({
+      hive: WinReg.HKLM,
+      key: paths[i]
+    });
+
+    key.get('CurrentVersion', function(err, home) {
+      currVer = home.value;
+      done = true;
+    });
+    
+    deasync.loopWhile(function() {return !done});
+    done = false;
+
+    var currVerKey;
+    key.keys(function(err, subKeys) {
+      subKeys.forEach(function(sk) {
+        var lastElement = sk.key.split('\\').pop();
+        if (lastElement == currVer) {
+          console.log(sk.key);
+          currVerKey = sk;
+          done = true;
+        }
+      });
+    });
+
+    deasync.loopWhile(function() {return !done});
+    done = false;
+
+    var registryJavaHome;
+    currVerKey.get('JavaHome', function(err, home) {
+      console.log(home.value);
+      registryJavaHome = home.value;
+      done = true;
+    });
+
+    deasync.loopWhile(function() {return !done});
+    done = false;
+
+    if (registryJavaHome) break;
+  }  
 
   return registryJavaHome;
 }
