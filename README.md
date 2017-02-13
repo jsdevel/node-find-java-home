@@ -36,7 +36,7 @@ limitations under the License.
 
 [downloads-image]: http://img.shields.io/npm/dm/find-java-home-sync.svg
 [npm-url]: https://npmjs.org/package/find-java-home-sync
-[npm-image]: http://img.shields.io/npm/v/find-java-home.svg
+[npm-image]: https://badge.fury.io/js/find-java-home-sync.svg
 
 [travis-url]: https://travis-ci.org/lazyjin/node-find-java-home-sync
 [travis-image]: https://travis-ci.org/lazyjin/node-find-java-home-sync.svg?branch=master
