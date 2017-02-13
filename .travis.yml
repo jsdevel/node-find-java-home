@@ -1,11 +1,12 @@
 language: node_js
 node_js:
-  - "0.11"
-  - "0.10"
-  - "0.8"
+  - "0.12"
 notifications:
   email:
     on_success: "never"
 before_script:
   - "java -version"
   - "which javac"
+
+# Send coverage data to Coveralls
+after_script: "cat coverage/lcov.info | node_modules/coveralls/bin/coveralls.js"

@@ -1,14 +1,15 @@
 {
-  "name": "find-java-home",
-  "version": "0.1.4",
-  "description": "Find JAVA_HOME on any system",
+  "name": "find-java-home-sync",
+  "version": "0.2.1",
+  "description": "Find JAVA_HOME on any system synchronously",
   "main": "index.js",
   "scripts": {
-    "test": "mocha -r should test.js"
+    "test": "mocha -u exports --reporter spec test.js",
+    "cover": "istanbul cover node_modules/mocha/bin/_mocha --reporter spec test.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jsdevel/node-find-java-home.git"
+    "url": "https://github.com/lazyjin/node-find-java-home-sync.git"
   },
   "dependencies": {
     "which": "~1.0.5",
@@ -18,15 +19,18 @@
     "JAVA_HOME",
     "find",
     "java",
-    "home"
+    "home",
+    "sync"
   ],
-  "author": "Joseph Spencer",
+  "author": "Lazyjin",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/jsdevel/node-find-java-home/issues"
+    "url": "https://github.com/lazyjin/node-find-java-home/issues"
   },
-  "homepage": "https://github.com/jsdevel/node-find-java-home",
+  "homepage": "https://github.com/lazyjin/node-find-java-home-sync",
   "devDependencies": {
+    "coveralls": "^2.11.16",
+    "istanbul": "^0.4.5",
     "mocha": "~1.18.2",
     "should": "~3.3.0"
   }

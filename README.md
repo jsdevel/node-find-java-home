@@ -1,19 +1,17 @@
 # node-find-java-home [![NPM version][npm-image]][npm-url] [![Downloads][downloads-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coveralls Status][coveralls-image]][coveralls-url]
 
 Returns the location of JAVA_HOME as an absolute path on windows, mac, and
-linux.  It runs asynchronously.
+linux.  It forked from [find-java-home](https://github.com/jsdevel/node-find-java-home) and runs synchronously.
 
-##Algorithm
-1. This module will first attempt to check for JAVA_HOME.  If that's set it
-simply returns that value.
-2. On windows the registry is queried.
-3. If neither of the previous methods worked, then the PATH is scanned for javac
-4. On mac, the parent directory of javac is checked for a java_home binary.  If that binary exists then it is executed and the result is used
-5. The grandparent directory of javac is used.  This is similar to `$(dirname $(dirname $(readlink $(which javac))))`
+##Prerequisites
+* Node v0.11.12+
+
+##Installation
+`npm install node-java-home-sync`
 
 ##Example
 ````javascript
-require('find-java-home')(function(err, home){
+require('find-java-home-sync')(function(err, home){
   if(err)return console.log(err);
   console.log(home);
 });
@@ -36,12 +34,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ````
 
-[downloads-image]: http://img.shields.io/npm/dm/find-java-home.svg
-[npm-url]: https://npmjs.org/package/find-java-home
-[npm-image]: http://img.shields.io/npm/v/find-java-home.svg
+[downloads-image]: http://img.shields.io/npm/dm/find-java-home-sync.svg
+[npm-url]: https://npmjs.org/package/find-java-home-sync
+[npm-image]: https://badge.fury.io/js/find-java-home-sync.svg
 
-[travis-url]: https://travis-ci.org/jsdevel/node-find-java-home
-[travis-image]: http://img.shields.io/travis/jsdevel/node-find-java-home.svg
+[travis-url]: https://travis-ci.org/lazyjin/node-find-java-home-sync
+[travis-image]: https://travis-ci.org/lazyjin/node-find-java-home-sync.svg?branch=master
 
-[coveralls-url]: https://coveralls.io/r/jsdevel/node-find-java-home
-[coveralls-image]: http://img.shields.io/coveralls/jsdevel/node-find-java-home/master.svg
+[coveralls-url]: https://coveralls.io/github/lazyjin/node-find-java-home-sync?branch=master
+[coveralls-image]: https://coveralls.io/repos/github/lazyjin/node-find-java-home-sync/badge.svg?branch=master
