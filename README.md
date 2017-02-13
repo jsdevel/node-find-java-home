@@ -1,19 +1,17 @@
-# node-find-java-home [![NPM version][npm-image]][npm-url] [![Downloads][downloads-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coveralls Status][coveralls-image]][coveralls-url]
+# node-find-java-home <!-- [![NPM version][npm-image]][npm-url] [![Downloads][downloads-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coveralls Status][coveralls-image]][coveralls-url] -->
 
 Returns the location of JAVA_HOME as an absolute path on windows, mac, and
 linux.  It forked from [find-java-home](https://github.com/jsdevel/node-find-java-home) and runs synchronously.
 
-##Algorithm
-1. This module will first attempt to check for JAVA_HOME.  If that's set it
-simply returns that value.
-2. On windows the registry is queried.
-3. If neither of the previous methods worked, then the PATH is scanned for javac
-4. On mac, the parent directory of javac is checked for a java_home binary.  If that binary exists then it is executed and the result is used
-5. The grandparent directory of javac is used.  This is similar to `$(dirname $(dirname $(readlink $(which javac))))`
+##Prerequisites
+* Node v0.11.12+
+
+##Installation
+`npm install node-java-home-sync`
 
 ##Example
 ````javascript
-require('find-java-home')(function(err, home){
+require('find-java-home-sync')(function(err, home){
   if(err)return console.log(err);
   console.log(home);
 });
