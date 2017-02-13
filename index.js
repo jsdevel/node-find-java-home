@@ -19,20 +19,23 @@ var which = require('which');
 var fs = require('fs');
 var path = require('path');
 var dirname = path.dirname;
-var exec = require('child_process').exec;
+var {
+    exec,
+    execSync
+} = require('child_process');
 var exists = fs.existsSync;
 var stat = fs.statSync;
 var readlink = fs.readlinkSync;
 var resolve = path.resolve;
 var lstat = fs.lstatSync;
-var deasync = require('deasync');
-var WinReg = require('winreg');
 var javaHome;
 
 module.exports = findJavaHome;
 
 var isWindows = process.platform.indexOf('win') === 0;
 var JAVAC_FILENAME = 'javac' + (isWindows ? '.exe' : '');
+var REG_CMD = 'REG';
+var REG_TYPE_PATTERN = /(REG_SZ|REG_MULTI_SZ|REG_EXPAND_SZ|REG_DWORD|REG_QWORD|REG_BINARY|REG_NONE)/
 
 function findJavaHome(options, cb) {
     if (typeof options === 'function') {
@@ -56,12 +59,12 @@ function findJavaHome(options, cb) {
         //java_home can be in many places
         //JDK paths
         possibleKeyPaths = [
-            '\\SOFTWARE\\JavaSoft\\Java Development Kit'
+            'HKLM\\SOFTWARE\\JavaSoft\\Java Development Kit'
         ];
         //JRE paths
         if (options.allowJre) {
             possibleKeyPaths = possibleKeyPaths.concat([
-                '\\SOFTWARE\\JavaSoft\\Java Runtime Environment',
+                'HKLM\\SOFTWARE\\JavaSoft\\Java Runtime Environment',
             ]);
         }
 
@@ -106,47 +109,10 @@ function findInRegistry(paths) {
     var currVer;
 
     for (var i in paths) {
-        var key = new WinReg({
-            hive: WinReg.HKLM,
-            key: paths[i]
-        });
+        var key = paths[i];
+        var cv = getRegValueByName(key, 'CurrentVersion');
+        var registryJavaHome = getRegValueByName(key + '\\' + cv, 'JavaHome');
 
-        key.get('CurrentVersion', function(err, home) {
-            currVer = home.value;
-            done = true;
-        });
-
-        deasync.loopWhile(function() {
-            return !done;
-        });
-        done = false;
-
-        var currVerKey;
-        key.keys(function(err, subKeys) {
-            subKeys.forEach(function(sk) {
-                var lastElement = sk.key.split('\\').pop();
-                if (lastElement == currVer) {
-                    currVerKey = sk;
-                    done = true;
-                }
-            });
-        });
-
-        deasync.loopWhile(function() {
-            return !done;
-        });
-        done = false;
-
-        var registryJavaHome;
-        currVerKey.get('JavaHome', function(err, home) {
-            registryJavaHome = home.value;
-            done = true;
-        });
-
-        deasync.loopWhile(function() {
-            return !done;
-        });
-        done = false;
 
         if (registryJavaHome) break;
     }
@@ -174,4 +140,20 @@ function after(count, cb) {
         if (count <= 1) return process.nextTick(cb);
         --count;
     };
+}
+
+function getRegValueByName(path, name) {
+    var cmd = [REG_CMD, 'QUERY', '"' + path + '"', '/v', name].join(' ');
+
+    try {
+        var result = execSync(cmd, {
+            cwd: undefined,
+            env: process.env,
+            stdio: ['ignore', 'pipe', 'pipe']
+        });
+
+        return result.toString().split(REG_TYPE_PATTERN).pop().trim();
+    } catch (e) {
+        return null;
+    }
 }
