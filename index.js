@@ -56,12 +56,12 @@ function findJavaHome(options, cb) {
         //java_home can be in many places
         //JDK paths
         possibleKeyPaths = [
-            "\\SOFTWARE\\JavaSoft\\Java Development Kit"
+            '\\SOFTWARE\\JavaSoft\\Java Development Kit'
         ];
         //JRE paths
         if (options.allowJre) {
             possibleKeyPaths = possibleKeyPaths.concat([
-                "\\SOFTWARE\\JavaSoft\\Java Runtime Environment",
+                '\\SOFTWARE\\JavaSoft\\Java Runtime Environment',
             ]);
         }
 
@@ -117,7 +117,7 @@ function findInRegistry(paths) {
         });
 
         deasync.loopWhile(function() {
-            return !done
+            return !done;
         });
         done = false;
 
@@ -126,7 +126,6 @@ function findInRegistry(paths) {
             subKeys.forEach(function(sk) {
                 var lastElement = sk.key.split('\\').pop();
                 if (lastElement == currVer) {
-                    console.log(sk.key);
                     currVerKey = sk;
                     done = true;
                 }
@@ -134,19 +133,18 @@ function findInRegistry(paths) {
         });
 
         deasync.loopWhile(function() {
-            return !done
+            return !done;
         });
         done = false;
 
         var registryJavaHome;
         currVerKey.get('JavaHome', function(err, home) {
-            console.log(home.value);
             registryJavaHome = home.value;
             done = true;
         });
 
         deasync.loopWhile(function() {
-            return !done
+            return !done;
         });
         done = false;
 
