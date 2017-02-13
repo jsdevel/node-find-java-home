@@ -1,7 +1,7 @@
 # node-find-java-home [![NPM version][npm-image]][npm-url] [![Downloads][downloads-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coveralls Status][coveralls-image]][coveralls-url]
 
 Returns the location of JAVA_HOME as an absolute path on windows, mac, and
-linux.  It runs asynchronously.
+linux.  It forked from [find-java-home and](https://github.com/jsdevel/node-find-java-home) runs synchronously.
 
 ##Algorithm
 1. This module will first attempt to check for JAVA_HOME.  If that's set it
