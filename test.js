@@ -15,47 +15,51 @@
 
 'use strict';
 
-describe('find-java-home', function(){
-  var sut = require('./');
+var should = require('should');
 
-  before(function(){
-    delete process.env.JAVA_HOME;
-  });
+describe('find-java-home-sync', function() {
+    var sut = require('./');
 
-  it('is a function', function(){
-    sut.should.be.type('function');
-  });
-
-  it('should find java home', function(done){
-    sut(function(err, home){
-      done(err);
-    });
-  });
-
-  describe('when JAVA_HOME is set incorrectly', function(){
-    var resolvedHome;
-
-    before(function(done){
-      sut(function(err, home){
-        resolvedHome = home;
-        process.env.JAVA_HOME = '/foo';
-        done(err);
-      });
+    before(function() {
+        delete process.env.JAVA_HOME;
     });
 
-    it('should find java home', function(done){
-      sut(function(err, home){
-        home.should.equal(resolvedHome);
-        done(err);
-      });
+    it('is a function', function() {
+        sut.should.be.type('function');
     });
-  });
 
-  describe('when given options', function() {
-    it('should still java home', function(done) {
-      sut({allowJre: true}, function(err, home) {
-        done(err);
-      });
+    it('should find java home', function(done) {
+        sut(function(err, home) {
+            done(err);
+        });
     });
-  });
+
+    describe('when JAVA_HOME is set incorrectly', function() {
+        var resolvedHome;
+
+        before(function(done) {
+            sut(function(err, home) {
+                resolvedHome = home;
+                process.env.JAVA_HOME = '/foo';
+                done(err);
+            });
+        });
+
+        it('should find java home', function(done) {
+            sut(function(err, home) {
+                home.should.equal(resolvedHome);
+                done(err);
+            });
+        });
+    });
+
+    describe('when given options', function() {
+        it('should still java home', function(done) {
+            sut({
+                allowJre: true
+            }, function(err, home) {
+                done(err);
+            });
+        });
+    });
 });

@@ -1,4 +1,4 @@
-# node-find-java-home <!-- [![NPM version][npm-image]][npm-url] [![Downloads][downloads-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coveralls Status][coveralls-image]][coveralls-url] -->
+# node-find-java-home [![NPM version][npm-image]][npm-url] [![Downloads][downloads-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coveralls Status][coveralls-image]][coveralls-url]
 
 Returns the location of JAVA_HOME as an absolute path on windows, mac, and
 linux.  It forked from [find-java-home](https://github.com/jsdevel/node-find-java-home) and runs synchronously.
@@ -34,12 +34,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ````
 
-[downloads-image]: http://img.shields.io/npm/dm/find-java-home.svg
-[npm-url]: https://npmjs.org/package/find-java-home
+[downloads-image]: http://img.shields.io/npm/dm/find-java-home-sync.svg
+[npm-url]: https://npmjs.org/package/find-java-home-sync
 [npm-image]: http://img.shields.io/npm/v/find-java-home.svg
 
-[travis-url]: https://travis-ci.org/jsdevel/node-find-java-home
-[travis-image]: http://img.shields.io/travis/jsdevel/node-find-java-home.svg
+[travis-url]: https://travis-ci.org/lazyjin/node-find-java-home-sync
+[travis-image]: https://travis-ci.org/lazyjin/node-find-java-home-sync.svg?branch=master
 
-[coveralls-url]: https://coveralls.io/r/jsdevel/node-find-java-home
-[coveralls-image]: http://img.shields.io/coveralls/jsdevel/node-find-java-home/master.svg
+[coveralls-url]: https://coveralls.io/github/lazyjin/node-find-java-home-sync?branch=master
+[coveralls-image]: https://coveralls.io/repos/github/lazyjin/node-find-java-home-sync/badge.svg?branch=master

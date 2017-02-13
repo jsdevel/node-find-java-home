@@ -19,10 +19,8 @@ var which = require('which');
 var fs = require('fs');
 var path = require('path');
 var dirname = path.dirname;
-var {
-    exec,
-    execSync
-} = require('child_process');
+var exec = require('child_process').exec;
+var execSync = require('child_process').execSync;
 var exists = fs.existsSync;
 var stat = fs.statSync;
 var readlink = fs.readlinkSync;

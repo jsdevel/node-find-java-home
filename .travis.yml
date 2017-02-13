@@ -7,3 +7,6 @@ notifications:
 before_script:
   - "java -version"
   - "which javac"
+
+# Send coverage data to Coveralls
+after_script: "cat coverage/lcov.info | node_modules/coveralls/bin/coveralls.js"
