@@ -101,7 +101,7 @@ function findInRegistry(paths){
   
   var keysFound =[];
   var keyPath = paths.forEach(function(element) {
-    var key = new WinReg({ key: keyPath });
+    var key = new WinReg({ key: element });
     key.keys(function(err, javaKeys){
       keysFound.concat(javaKeys);
     });
