@@ -31,7 +31,6 @@ var javaHome;
 module.exports = findJavaHome;
 
 var isWindows = process.platform.indexOf('win') === 0;
-var JAVAC_FILENAME = 'javac' + (isWindows?'.exe':'');
 
 function findJavaHome(options, cb){
   if(typeof options === 'function'){
@@ -41,10 +40,11 @@ function findJavaHome(options, cb){
   options = options || {
     allowJre: false
   };
+  var JAVA_FILENAME = (options.allowJre ? 'java' : 'javac') + (isWindows?'.exe':'');
   var macUtility;
   var possibleKeyPaths;
 
-  if(process.env.JAVA_HOME && dirIsJavaHome(process.env.JAVA_HOME)){
+  if(process.env.JAVA_HOME && dirIsJavaHome(process.env.JAVA_HOME, JAVA_FILENAME)){
     javaHome = process.env.JAVA_HOME;
   }
 
@@ -68,7 +68,7 @@ function findJavaHome(options, cb){
     if(javaHome)return next(cb, null, javaHome);
   }
 
-  which(JAVAC_FILENAME, function(err, proposed){
+  which(JAVA_FILENAME, function(err, proposed){
     if(err)return next(cb, err, null);
 
     //resolve symlinks
@@ -101,7 +101,7 @@ function findInRegistry(paths){
   
   var keysFound =[];
   var keyPath = paths.forEach(function(element) {
-    var key = new WinReg({ key: element });
+    var key = new WinReg({ key: keyPath });
     key.keys(function(err, javaKeys){
       keysFound.concat(javaKeys);
     });
@@ -133,10 +133,10 @@ function next(cb, err, home){
   process.nextTick(function(){cb(err, home);});
 }
 
-function dirIsJavaHome(dir){
+function dirIsJavaHome(dir, JAVA_FILENAME){
   return exists(''+dir)
     && stat(dir).isDirectory()
-    && exists(path.resolve(dir, 'bin', JAVAC_FILENAME));
+    && exists(path.resolve(dir, 'bin', JAVA_FILENAME));
 }
 
 function after(count, cb){
