@@ -3,7 +3,7 @@
 Returns the location of JAVA_HOME as an absolute path on windows, mac, and
 linux.  It runs asynchronously.
 
-##Algorithm
+## Algorithm
 1. This module will first attempt to check for JAVA_HOME.  If that's set it
 simply returns that value.
 2. On windows the registry is queried.
@@ -11,7 +11,7 @@ simply returns that value.
 4. On mac, the parent directory of javac is checked for a java_home binary.  If that binary exists then it is executed and the result is used
 5. The grandparent directory of javac is used.  This is similar to `$(dirname $(dirname $(readlink $(which javac))))`
 
-##Example
+## Example
 ````javascript
 require('find-java-home')(function(err, home){
   if(err)return console.log(err);
@@ -19,7 +19,7 @@ require('find-java-home')(function(err, home){
 });
 ````
 
-##License
+## License
 ````
 Copyright 2013 Joseph Spencer.
 
