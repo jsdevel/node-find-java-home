@@ -6,7 +6,7 @@
   "types": "out/index.d.ts",
   "scripts": {
     "test": "mocha -r should test.js",
-    "prepack": "tsc -p .",
+    "prepare": "tsc -p .",
     "watch": "tsc -w -p ."
   },
   "repository": {

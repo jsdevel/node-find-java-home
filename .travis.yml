@@ -9,4 +9,4 @@ notifications:
 before_script:
   - "java -version"
   - "which javac"
-  - "npm run prepack"
+  - "npm install"
