@@ -1,0 +1,7 @@
+src/**
+**/*.map
+tsconfig.json
+.travis.yml
+test.js
+*.tgz
+.vscode
