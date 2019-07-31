@@ -54,7 +54,8 @@ function findJavaHome(options, cb){
   if(process.platform.indexOf('win') === 0){
     //java_home can be in many places
     //JDK paths
-    possibleKeyPaths = [        
+    possibleKeyPaths = [
+      "SOFTWARE\\JavaSoft\\JDK",
       "SOFTWARE\\JavaSoft\\Java Development Kit"
     ];
     //JRE paths
@@ -97,8 +98,8 @@ function findJavaHome(options, cb){
 }
 
 function findInRegistry(paths){
-  if(!paths.length) return null; 
-  
+  if(!paths.length) return null;
+
   var keysFound =[];
   var keyPath = paths.forEach(function(element) {
     var key = new WinReg({ key: element });
@@ -106,7 +107,7 @@ function findInRegistry(paths){
       keysFound.concat(javaKeys);
     });
   }, this)
-  
+
   if(!keysFound.length) return null;
 
   keysFound = keysFound.sort(function(a,b){
@@ -116,7 +117,7 @@ function findInRegistry(paths){
   });
   var registryJavaHome;
   keysFound[0].get('JavaHome',function(err,home){
-   registryJavaHome = home.value; 
+   registryJavaHome = home.value;
   });
 
   return registryJavaHome;
