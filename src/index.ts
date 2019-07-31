@@ -21,6 +21,7 @@ import WinReg, { Registry } from "winreg";
 
 const isWindows: boolean = process.platform.indexOf('win') === 0;
 const jdkRegistryKeyPaths: string[] = [
+    "\\SOFTWARE\\JavaSoft\\JDK",
     "\\SOFTWARE\\JavaSoft\\Java Development Kit"
 ];
 const jreRegistryKeyPaths: string[] = [
