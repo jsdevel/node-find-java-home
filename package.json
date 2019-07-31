@@ -1,6 +1,6 @@
 {
   "name": "find-java-home",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Find JAVA_HOME on any system",
   "main": "index.js",
   "scripts": {
