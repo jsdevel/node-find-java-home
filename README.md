@@ -19,7 +19,7 @@ require('find-java-home')(function(err, home){
 });
 
 // OR
-import findJavaHome from 'find-java-home';
+import * as findJavaHome from 'find-java-home';
 findJavaHome({allowJre: true}, (err, home) => {
   if(err)return console.log(err);
   console.log(home);
