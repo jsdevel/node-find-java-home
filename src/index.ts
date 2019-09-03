@@ -28,19 +28,22 @@ const jreRegistryKeyPaths: string[] = [
     "\\SOFTWARE\\JavaSoft\\Java Runtime Environment"
 ];
 
-interface IOptions { allowJre: boolean };
+declare namespace findJavaHome {
+    interface IOptions { allowJre: boolean }
+}
+
 type Callback = (err: Error, res: any) => void;
 
 function findJavaHome(cb: Callback): void;
-function findJavaHome(options: IOptions, cb: Callback): void;
-async function findJavaHome(optionsOrCb: IOptions | Callback, optional?: Callback) {
+function findJavaHome(options: findJavaHome.IOptions, cb: Callback): void;
+async function findJavaHome(optionsOrCb: findJavaHome.IOptions | Callback, optional?: Callback) {
     let cb: Callback;
-    let options: IOptions | undefined;
+    let options: findJavaHome.IOptions | undefined;
     if (!optional) {
         cb = <Callback>optionsOrCb;
         options = undefined;
     } else {
-        options = <IOptions>optionsOrCb;
+        options = <findJavaHome.IOptions>optionsOrCb;
         cb = optional;
     }
 
@@ -54,7 +57,7 @@ async function findJavaHome(optionsOrCb: IOptions | Callback, optional?: Callbac
     cb(err, res);
 }
 
-async function findJavaHomePromise(options?: IOptions): Promise<string | null> {
+async function findJavaHomePromise(options?: findJavaHome.IOptions): Promise<string | null> {
     const allowJre: boolean = !!(options && options.allowJre);
     const JAVA_FILENAME = (allowJre ? 'java' : 'javac') + (isWindows ? '.exe' : '');
 
