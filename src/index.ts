@@ -29,9 +29,12 @@ const jreRegistryKeyPaths: string[] = [
 ];
 
 declare namespace findJavaHome {
-    interface IOptions { allowJre: boolean }
+    interface IOptions {
+        allowJre: boolean;
+        registry?: RegArch;
+    }
 }
-
+type RegArch = "x86" | "x64";
 type Callback = (err: Error, res: any) => void;
 
 function findJavaHome(cb: Callback): void;
@@ -60,6 +63,8 @@ async function findJavaHome(optionsOrCb: findJavaHome.IOptions | Callback, optio
 async function findJavaHomePromise(options?: findJavaHome.IOptions): Promise<string | null> {
     const allowJre: boolean = !!(options && options.allowJre);
     const JAVA_FILENAME = (allowJre ? 'java' : 'javac') + (isWindows ? '.exe' : '');
+    // Search both "x64" and "x86" registries for Java runtimes if not specified
+    const regs: RegArch[] = (options && options.registry) ? [options.registry] : ["x64", "x86"];
 
     // From env
     if (process.env.JAVA_HOME && dirIsJavaHome(process.env.JAVA_HOME, JAVA_FILENAME)) {
@@ -69,7 +74,7 @@ async function findJavaHomePromise(options?: findJavaHome.IOptions): Promise<str
     // From registry (windows only)
     if (isWindows) {
         const possibleKeyPaths: string[] = allowJre ? jdkRegistryKeyPaths.concat(jreRegistryKeyPaths) : jdkRegistryKeyPaths;
-        const javaHome = await findInRegistry(possibleKeyPaths);
+        const javaHome = await findInRegistry(possibleKeyPaths, regs);
         if (javaHome) {
             return javaHome;
         }
@@ -113,10 +118,15 @@ function findInPath(JAVA_FILENAME: string) {
 
 }
 
-async function findInRegistry(keyPaths: string[]): Promise<string | null> {
+async function findInRegistry(keyPaths: string[], regArchs: RegArch[]): Promise<string | null> {
     if (!keyPaths.length) return null;
 
-    const promises = keyPaths.map(promisifyFindPossibleRegKey);
+    const promises = [];
+    for (const arch of regArchs) {
+        for (const keyPath of keyPaths) {
+            promises.push(promisifyFindPossibleRegKey(keyPath, arch));
+        }
+    }
 
     const keysFoundSegments: Registry[][] = await Promise.all(promises);
     const keysFound: Registry[] = Array.prototype.concat.apply([], keysFoundSegments);
@@ -136,11 +146,12 @@ async function findInRegistry(keyPaths: string[]): Promise<string | null> {
     return null;
 }
 
-function promisifyFindPossibleRegKey(keyPath: string): Promise<Registry[]> {
+function promisifyFindPossibleRegKey(keyPath: string, regArch: RegArch): Promise<Registry[]> {
     return new Promise<Registry[]>((resolve) => {
         const winreg: Registry = new WinReg({
             hive: WinReg.HKLM,
-            key: keyPath
+            key: keyPath,
+            arch: regArch
         });
         winreg.keys((err, result) => {
             if (err) {
