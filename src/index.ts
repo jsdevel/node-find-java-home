@@ -18,6 +18,7 @@ import * as path from "path";
 import * as cp from "child_process";
 import which from "which";
 import WinReg, { Registry } from "winreg";
+import { execSync } from 'child_process';
 
 const isWindows: boolean = process.platform.indexOf('win') === 0;
 const jdkRegistryKeyPaths: string[] = [
@@ -89,6 +90,15 @@ function findInPath(JAVA_FILENAME: string) {
         which(JAVA_FILENAME, (err, proposed) => {
             if (err || !proposed) {
                 return resolve(null);
+            }
+
+            if (proposed.match(".jenv/shims")) {
+                try {
+                    const jenvProposed: string = execSync(`jenv which ${JAVA_FILENAME}`).toString().trim();
+                    proposed = jenvProposed;
+                } catch (ex) {
+                    console.error(ex);
+                }
             }
 
             //resolve symlinks
