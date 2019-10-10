@@ -92,7 +92,7 @@ function findInPath(JAVA_FILENAME: string) {
                 return resolve(null);
             }
 
-            if (proposed.match(".jenv/shims")) {
+            if (/\.jenv\/shims/.test(proposed)) {
                 try {
                     const jenvProposed: string = execSync(`jenv which ${JAVA_FILENAME}`).toString().trim();
                     proposed = jenvProposed;
