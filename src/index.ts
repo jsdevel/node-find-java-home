@@ -197,4 +197,7 @@ function findLinkedFile(file: string): string {
     return findLinkedFile(fs.readlinkSync(file));
 }
 
-export = findJavaHome;
+export = {
+    findJavaHome,
+    findJavaHomePromise
+};
