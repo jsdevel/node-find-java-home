@@ -16,7 +16,7 @@
 'use strict';
 
 describe('find-java-home', function(){
-  var sut = require('./');
+  var sut = require('./').findJavaHome;
 
   before(function(){
     delete process.env.JAVA_HOME;
