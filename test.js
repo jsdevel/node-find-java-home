@@ -16,7 +16,7 @@
 'use strict';
 
 describe('find-java-home', function(){
-  var sut = require('./').findJavaHome;
+  const sut = require('./').default;
 
   before(function(){
     delete process.env.JAVA_HOME;
@@ -33,7 +33,7 @@ describe('find-java-home', function(){
   });
 
   describe('when JAVA_HOME is set incorrectly', function(){
-    var resolvedHome;
+    let resolvedHome;
 
     before(function(done){
       sut(function(err, home){
