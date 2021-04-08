@@ -16,9 +16,9 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as cp from "child_process";
+import {execSync} from "child_process";
 import which from "which";
-import WinReg, { Registry } from "winreg";
-import { execSync } from 'child_process';
+import WinReg, {Registry} from "winreg";
 
 const isWindows: boolean = process.platform.indexOf('win') === 0;
 const jdkRegistryKeyPaths: string[] = [
@@ -61,6 +61,8 @@ async function findJavaHome(optionsOrCb: findJavaHome.IOptions | Callback, optio
     cb(err, res);
 }
 
+findJavaHome.promise = findJavaHomePromise()
+
 async function findJavaHomePromise(options?: findJavaHome.IOptions): Promise<string | null> {
     const allowJre: boolean = !!(options && options.allowJre);
     const JAVA_FILENAME = (allowJre ? 'java' : 'javac') + (isWindows ? '.exe' : '');
@@ -94,8 +96,7 @@ function findInPath(JAVA_FILENAME: string) {
 
             if (/\.jenv\/shims/.test(proposed)) {
                 try {
-                    const jenvProposed: string = execSync(`jenv which ${JAVA_FILENAME}`).toString().trim();
-                    proposed = jenvProposed;
+                    proposed = execSync(`jenv which ${JAVA_FILENAME}`).toString().trim();
                 } catch (ex) {
                     console.error(ex);
                 }
@@ -143,8 +144,8 @@ async function findInRegistry(keyPaths: string[], regArchs: RegArch[]): Promise<
     if (!keysFound.length) return null;
 
     const sortedKeysFound = keysFound.sort(function (a, b) {
-        var aVer = parseFloat(a.key);
-        var bVer = parseFloat(b.key);
+        const aVer = parseFloat(a.key);
+        const bVer = parseFloat(b.key);
         return bVer - aVer;
     });
     for (const key of sortedKeysFound) {
@@ -197,4 +198,5 @@ function findLinkedFile(file: string): string {
     return findLinkedFile(fs.readlinkSync(file));
 }
 
-export = findJavaHome;
+export = findJavaHome
+
