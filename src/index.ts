@@ -103,7 +103,7 @@ function findInPath(JAVA_FILENAME: string) {
             }
 
             //resolve symlinks
-            proposed = findLinkedFile(proposed);
+            proposed = fs.realpathSync(proposed);
 
             //get the /bin directory
             proposed = path.dirname(proposed);
@@ -190,13 +190,6 @@ function dirIsJavaHome(dir: string, javaFilename: string): boolean {
         && fs.existsSync(path.resolve(dir, 'bin', javaFilename));
 }
 
-
-// iterate through symbolic links until
-// file is found
-function findLinkedFile(file: string): string {
-    if (!fs.lstatSync(file).isSymbolicLink()) return file;
-    return findLinkedFile(fs.readlinkSync(file));
-}
 
 export = findJavaHome
 

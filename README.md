@@ -9,7 +9,7 @@ simply returns that value.
 2. On windows the registry is queried.
 3. If neither of the previous methods worked, then the PATH is scanned for javac
 4. On mac, the parent directory of javac is checked for a java_home binary.  If that binary exists then it is executed and the result is used
-5. The grandparent directory of javac is used.  This is similar to `$(dirname $(dirname $(readlink $(which javac))))`
+5. The grandparent directory of javac is used.  This is similar to `$(dirname $(dirname $(readlink -e $(which javac))))`
 
 ## Example
 ````javascript
