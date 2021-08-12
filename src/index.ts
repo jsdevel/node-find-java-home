@@ -38,8 +38,6 @@ declare namespace findJavaHome {
 type RegArch = "x86" | "x64";
 type Callback = (err: Error, res: any) => void;
 
-function findJavaHome(cb: Callback): void;
-function findJavaHome(options: findJavaHome.IOptions, cb: Callback): void;
 async function findJavaHome(optionsOrCb: findJavaHome.IOptions | Callback, optional?: Callback) {
     let cb: Callback;
     let options: findJavaHome.IOptions | undefined;
