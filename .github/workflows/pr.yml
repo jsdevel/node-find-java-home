@@ -1,0 +1,17 @@
+name: PR Build
+on: pull_request
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: lts/*
+      - run: java -version
+      - run: which javac
+      - run: npm ci
+      - run: npm run prepare
+      - run: npm t
+
+
